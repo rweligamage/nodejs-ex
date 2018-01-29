@@ -56,40 +56,195 @@ var initDb = function(callback) {
   });
 };
 
+
 app.get('/', function (req, res) {
-  // try to initialize the db on every request if it's not already
-  // initialized.
-  if (!db) {
-    initDb(function(err){});
-  }
-  if (db) {
-    var col = db.collection('counts');
-    // Create a document with request IP and current time of request
-    col.insert({ip: req.ip, date: Date.now()});
-    col.count(function(err, count){
-      if (err) {
-        console.log('Error running count. Message:\n'+err);
-      }
-      res.render('index.html', { pageCountMessage : count, dbInfo: dbDetails });
-    });
-  } else {
-    res.render('index.html', { pageCountMessage : null});
-  }
+    res.status(200).json({ "message": "Welcome to Lyrics application." });
+});
+app.get('/collections', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        res.status(200).json({ "message": db.getCollectionNames() });
+    } else {
+        res.status(500).send({ message: "get-collections-db-false" });
+    }
+});
+app.get('/closedb', function (req, res) {
+    var dbStatus = 'db was closed';
+    if (db) {
+        dbStatus = 'db was opened';
+        //to close before a build
+        db.close();
+    }
+    res.json({ "message": dbStatus });
+});
+app.get('/artists', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.find({}).toArray(function (err, artists) {
+            if (err) {
+                res.status(500).send({ message: "get-artists-toarray-err" });
+            } else {
+                res.send(artists);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-artists-db-false" });
+    }
 });
 
-app.get('/pagecount', function (req, res) {
-  // try to initialize the db on every request if it's not already
-  // initialized.
-  if (!db) {
-    initDb(function(err){});
-  }
-  if (db) {
-    db.collection('counts').count(function(err, count ){
-      res.send('{ pageCount: ' + count + '}');
-    });
-  } else {
-    res.send('{ pageCount: -1 }');
-  }
+app.get('/songs', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('songs');
+        col.find({}).toArray(function (err, songs) {
+            if (err) {
+                res.status(500).send({ message: "get-songs-toarray-err" });
+            } else {
+                res.send(songs);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-songs-db-false" });
+    }
+});
+
+app.get('/artists/verified', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.find({ verified: true }).toArray(function (err, artists) {
+            if (err) {
+                res.status(500).send({ message: "get-verified-artists-toarray-err" });
+            } else {
+                res.send(artists);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-verified-artists-db-false" });
+    }
+});
+app.get('/songs/verified', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('songs');
+        col.find({ verified: true }).toArray(function (err, songs) {
+            if (err) {
+                res.status(500).send({ message: "get-verified-songs-toarray-err" });
+            } else {
+                res.send(songs);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-verified-songs-db-false" });
+    }
+});
+
+app.get('/artists/notverified', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.find({ verified: false }).toArray(function (err, artists) {
+            if (err) {
+                res.status(500).send({ message: "get-notverified-artists-toarray-err" });
+            } else {
+                res.send(artists);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-notverified-artists-db-false" });
+    }
+});
+app.get('/songs/notverified', function (req, res) {
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('songs');
+        col.find({ verified: false }).toArray(function (err, songs) {
+            if (err) {
+                res.status(500).send({ message: "get-notverified-songs-toarray-err" });
+            } else {
+                res.send(songs);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-notverified-songs-db-false" });
+    }
+});
+
+app.post('/artists/add', function (req, res) {
+    if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
+        res.status(400).send({ message: "Artist cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var artistObj = new Artist({
+                name_sinhala: req.body.name_sinhala,
+                name_english: req.body.name_english,
+                base64: req.body.base64,
+                verified: req.body.verified,
+                _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
+            });
+            var col = db.collection('artists');
+            col.insert(artistObj, function (err, result) {
+                console.log('song result: ', result);
+                if (err) {
+                    res.status(500).send({ message: "post-artist-inser-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+            console.log('inserting to artists');
+        } else {
+            res.status(500).send({ message: "post-artist-db-false" });
+        }
+    }
+});
+
+app.post('/songs/add', function (req, res) {
+    if (!req.body.name_sinhala || !req.body.name_english || !req.body.lyrics || !req.body.artists || !req.body.verified) {
+        res.status(400).send({ message: "Song cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var songObj = new Song({
+                name_sinhala: req.body.name_sinhala,
+                name_english: req.body.name_english,
+                lyrics: req.body.lyrics,
+                artists: req.body.artists,
+                verified: req.body.verified,
+                _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
+            });
+            var col = db.collection('songs');
+            col.insert(songObj, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "post-song-inser-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+            console.log('inserting to songs');
+        } else {
+            res.status(500).send({ message: "post-song-db-false" });
+        }
+    }
 });
 
 // error handling
@@ -106,3 +261,41 @@ app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
 module.exports = app ;
+
+
+
+// app.get('/', function (req, res) {
+//   // try to initialize the db on every request if it's not already
+//   // initialized.
+//   if (!db) {
+//     initDb(function(err){});
+//   }
+//   if (db) {
+//     var col = db.collection('counts');
+//     // Create a document with request IP and current time of request
+//     col.insert({ip: req.ip, date: Date.now()});
+//     col.count(function(err, count){
+//       if (err) {
+//         console.log('Error running count. Message:\n'+err);
+//       }
+//       res.render('index.html', { pageCountMessage : count, dbInfo: dbDetails });
+//     });
+//   } else {
+//     res.render('index.html', { pageCountMessage : null});
+//   }
+// });
+
+// app.get('/pagecount', function (req, res) {
+//   // try to initialize the db on every request if it's not already
+//   // initialized.
+//   if (!db) {
+//     initDb(function(err){});
+//   }
+//   if (db) {
+//     db.collection('counts').count(function(err, count ){
+//       res.send('{ pageCount: ' + count + '}');
+//     });
+//   } else {
+//     res.send('{ pageCount: -1 }');
+//   }
+// });
