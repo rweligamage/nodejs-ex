@@ -2,12 +2,15 @@
 var express = require('express'),
     app = express(),
     morgan = require('morgan'),
-    cors = require('cors');
+    cors = require('cors'),
+    bodyParser = require('body-parser');
 
 Object.assign = require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
+app.use(cors({origin: 'http://localhost:8100'}));
+app.use(bodyParser.json());
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
@@ -77,7 +80,6 @@ app.get('/', function (req, res) {
         res.render('index.html', { pageCountMessage: null });
     }
 });
-
 app.get('/pagecount', function (req, res) {
 
     // try to initialize the db on every request if it's not already
@@ -93,7 +95,6 @@ app.get('/pagecount', function (req, res) {
         res.send('{ pageCount: -1 }');
     }
 });
-
 app.get('/collections', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -133,7 +134,6 @@ app.get('/artists', function (req, res) {
         res.status(500).send({ message: "get-artists-db-false" });
     }
 });
-
 app.get('/songs', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -152,7 +152,6 @@ app.get('/songs', function (req, res) {
         res.status(500).send({ message: "get-songs-db-false" });
     }
 });
-
 app.get('/artists/verified', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -189,7 +188,6 @@ app.get('/songs/verified', function (req, res) {
         res.status(500).send({ message: "get-verified-songs-db-false" });
     }
 });
-
 app.get('/artists/notverified', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -226,7 +224,6 @@ app.get('/songs/notverified', function (req, res) {
         res.status(500).send({ message: "get-notverified-songs-db-false" });
     }
 });
-
 app.post('/artists/add', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     console.log(req.body);
@@ -259,7 +256,6 @@ app.post('/artists/add', function (req, res) {
         }
     }
 });
-
 app.post('/songs/add', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.lyrics || !req.body.artists || !req.body.verified) {
@@ -292,10 +288,6 @@ app.post('/songs/add', function (req, res) {
     }
 });
 
-const corsOptions = {
-    origin: 'http://localhost:8100',
-    credentials: true,
-};
 
 // error handling
 // app.use(function (err, req, res, next) {
@@ -313,7 +305,7 @@ const corsOptions = {
 //     // };
 // });
 
-app.use(cors({origin: 'http://localhost:8100'}));
+
 
 initDb(function (err) {
     console.log('Error connecting to Mongo. Message:\n' + err);
