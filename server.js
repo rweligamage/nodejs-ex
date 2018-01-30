@@ -117,7 +117,7 @@ app.get('/artists', function (req, res) {
     }
     if (db) {
         var col = db.collection('artists');
-        col.find({}).toArray(function (err, artists) {
+        col.find({}).sort({ name_english: 1 }).toArray(function (err, artists) {
             if (err) {
                 res.status(500).send({ message: "get-artists-toarray-err" });
             } else {
@@ -135,7 +135,7 @@ app.get('/songs', function (req, res) {
     }
     if (db) {
         var col = db.collection('songs');
-        col.find({}).toArray(function (err, songs) {
+        col.find({}).sort({ name_english: 1 }).toArray(function (err, songs) {
             if (err) {
                 res.status(500).send({ message: "get-songs-toarray-err" });
             } else {
@@ -153,7 +153,7 @@ app.get('/artists/verified', function (req, res) {
     }
     if (db) {
         var col = db.collection('artists');
-        col.find({ verified: true }).toArray(function (err, artists) {
+        col.find({ verified: true }).sort({ name_english: 1 }).toArray(function (err, artists) {
             if (err) {
                 res.status(500).send({ message: "get-verified-artists-toarray-err" });
             } else {
@@ -170,7 +170,7 @@ app.get('/songs/verified', function (req, res) {
     }
     if (db) {
         var col = db.collection('songs');
-        col.find({ verified: true }).toArray(function (err, songs) {
+        col.find({ verified: true }).sort({ name_english: 1 }).toArray(function (err, songs) {
             if (err) {
                 res.status(500).send({ message: "get-verified-songs-toarray-err" });
             } else {
@@ -188,7 +188,7 @@ app.get('/artists/notverified', function (req, res) {
     }
     if (db) {
         var col = db.collection('artists');
-        col.find({ verified: false }).toArray(function (err, artists) {
+        col.find({ verified: false }).sort({ name_english: 1 }).toArray(function (err, artists) {
             if (err) {
                 res.status(500).send({ message: "get-notverified-artists-toarray-err" });
             } else {
@@ -205,7 +205,7 @@ app.get('/songs/notverified', function (req, res) {
     }
     if (db) {
         var col = db.collection('songs');
-        col.find({ verified: false }).toArray(function (err, songs) {
+        col.find({ verified: false }).sort({ name_english: 1 }).toArray(function (err, songs) {
             if (err) {
                 res.status(500).send({ message: "get-notverified-songs-toarray-err" });
             } else {
