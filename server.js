@@ -226,7 +226,6 @@ app.get('/songs/notverified', function (req, res) {
 });
 app.post('/artists/add', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(req.body);
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
         res.status(400).send({ message: "Artist cannot be empty" });
     } else {
@@ -234,13 +233,13 @@ app.post('/artists/add', function (req, res) {
             initDb(function (err) { });
         }
         if (db) {
-            var artistObj = new Artist({
+            var artistObj = {
                 name_sinhala: req.body.name_sinhala,
                 name_english: req.body.name_english,
                 base64: req.body.base64,
                 verified: req.body.verified,
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
-            });
+            };
             var col = db.collection('artists');
             col.insert(artistObj, function (err, result) {
                 console.log('song result: ', result);
@@ -265,14 +264,14 @@ app.post('/songs/add', function (req, res) {
             initDb(function (err) { });
         }
         if (db) {
-            var songObj = new Song({
+            var songObj = {
                 name_sinhala: req.body.name_sinhala,
                 name_english: req.body.name_english,
                 lyrics: req.body.lyrics,
                 artists: req.body.artists,
                 verified: req.body.verified,
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
-            });
+            };
             var col = db.collection('songs');
             col.insert(songObj, function (err, result) {
                 if (err) {
