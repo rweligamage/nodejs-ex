@@ -229,6 +229,7 @@ app.get('/songs/notverified', function (req, res) {
 
 app.post('/artists/add', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    console.log(req.body);
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
         res.status(400).send({ message: "Artist cannot be empty" });
     } else {
