@@ -61,39 +61,10 @@ var initDb = function (callback) {
 };
 
 app.get('/', function (req, res) {
-    // try to initialize the db on every request if it's not already
-    // initialized.
-    if (!db) {
-        initDb(function (err) { });
-    }
-    if (db) {
-        var col = db.collection('counts');
-        // Create a document with request IP and current time of request
-        col.insert({ ip: req.ip, date: Date.now() });
-        col.count(function (err, count) {
-            if (err) {
-                console.log('Error running count. Message:\n' + err);
-            }
-            res.render('index.html', { pageCountMessage: count, dbInfo: dbDetails });
-        });
-    } else {
-        res.render('index.html', { pageCountMessage: null });
-    }
+    res.send('{ pageCount: -1 }');
 });
 app.get('/pagecount', function (req, res) {
-
-    // try to initialize the db on every request if it's not already
-    // initialized.
-    if (!db) {
-        initDb(function (err) { });
-    }
-    if (db) {
-        db.collection('counts').count(function (err, count) {
-            res.send('{ pageCount: ' + count + '}');
-        });
-    } else {
-        res.send('{ pageCount: -1 }');
-    }
+    res.send('{ pageCount: -1 }');
 });
 app.get('/collections', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -242,14 +213,12 @@ app.post('/artists/add', function (req, res) {
             };
             var col = db.collection('artists');
             col.insert(artistObj, function (err, result) {
-                console.log('song result: ', result);
                 if (err) {
                     res.status(500).send({ message: "post-artist-inser-err" });
                 } else {
                     res.send(result);
                 }
             });
-            console.log('inserting to artists');
         } else {
             res.status(500).send({ message: "post-artist-db-false" });
         }
@@ -280,7 +249,6 @@ app.post('/songs/add', function (req, res) {
                     res.send(result);
                 }
             });
-            console.log('inserting to songs');
         } else {
             res.status(500).send({ message: "post-song-db-false" });
         }
