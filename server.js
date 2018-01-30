@@ -297,22 +297,22 @@ const corsOptions = {
 };
 
 // error handling
-app.use(function (err, req, res, next) {
-    // console.error(err.stack);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, *');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    next();
+// app.use(function (err, req, res, next) {
+//     // console.error(err.stack);
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, *');
+//     res.setHeader('Access-Control-Allow-Credentials', true);
+//     next();
 
-    // if ('OPTIONS' === req.method) {
-    //     res.send(200);
-    // } else {
-    //     res.status(500).send('Something bad happened!');
-    // };
-});
+//     // if ('OPTIONS' === req.method) {
+//     //     res.send(200);
+//     // } else {
+//     //     res.status(500).send('Something bad happened!');
+//     // };
+// });
 
-// app.use(cors({origin: 'http://localhost:8100'}));
+app.use(cors({origin: 'http://localhost:8100'}));
 
 initDb(function (err) {
     console.log('Error connecting to Mongo. Message:\n' + err);
