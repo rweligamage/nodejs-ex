@@ -255,6 +255,51 @@ app.post('/songs/add', function (req, res) {
     }
 });
 
+app.delete('/artists/delete', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.artistId) {
+        res.status(400).send({ message: "Artist id cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('artists');
+            col.remove({_id: req.params.artistId }, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "delete-artist-err-" + req.params.artistId });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "delete-artist-db-false" });
+        }
+    }
+});
+app.delete('/songs/delete', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.songId) {
+        res.status(400).send({ message: "Song id cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('songs');
+            col.remove({_id: req.params.songId }, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "delete-song-err-" + req.params.songId });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "delete-song-db-false" });
+        }
+    }
+});
+
 
 // error handling
 // app.use(function (err, req, res, next) {
