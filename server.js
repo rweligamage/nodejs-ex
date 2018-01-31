@@ -195,7 +195,7 @@ app.get('/songs/notverified', function (req, res) {
         res.status(500).send({ message: "get-notverified-songs-db-false" });
     }
 });
-app.post('/artists/add', function (req, res) {
+app.post('/artists/save', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
         res.status(400).send({ message: "Artist cannot be empty" });
@@ -212,9 +212,9 @@ app.post('/artists/add', function (req, res) {
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
             };
             var col = db.collection('artists');
-            col.insert(artistObj, function (err, result) {
+            col.save(artistObj, function (err, result) {
                 if (err) {
-                    res.status(500).send({ message: "post-artist-inser-err" });
+                    res.status(500).send({ message: "post-artist-save-err" });
                 } else {
                     res.send(result);
                 }
@@ -224,7 +224,7 @@ app.post('/artists/add', function (req, res) {
         }
     }
 });
-app.post('/songs/add', function (req, res) {
+app.post('/songs/save', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.lyrics || !req.body.artists || !req.body.verified) {
         res.status(400).send({ message: "Song cannot be empty" });
@@ -242,9 +242,9 @@ app.post('/songs/add', function (req, res) {
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
             };
             var col = db.collection('songs');
-            col.insert(songObj, function (err, result) {
+            col.save(songObj, function (err, result) {
                 if (err) {
-                    res.status(500).send({ message: "post-song-inser-err" });
+                    res.status(500).send({ message: "post-song-save-err" });
                 } else {
                     res.send(result);
                 }
@@ -254,7 +254,50 @@ app.post('/songs/add', function (req, res) {
         }
     }
 });
-
+app.post('/artists/add/list', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.body) {
+        res.status(400).send({ message: "Artistlist cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('artists');
+            col.insertMany(req.body, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "post-artistlist-inser-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "post-artistlist-db-false" });
+        }
+    }
+});
+app.post('/songs/add/list', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.body) {
+        res.status(400).send({ message: "Songlist cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('songs');
+            col.insert(req.body, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "post-songlist-inser-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "post-songlist-db-false" });
+        }
+    }
+});
 app.delete('/artists/delete/:artistId', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.artistId) {
@@ -296,6 +339,50 @@ app.delete('/songs/delete/:songId', function (req, res) {
             });
         } else {
             res.status(500).send({ message: "delete-song-db-false" });
+        }
+    }
+});
+app.delete('/artists/delete/:artistId', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.artistId || !req.params.artistId != 'all') {
+        res.status(400).send({ message: "Artist id all cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('artists');
+            col.remove({}, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "delete-artistall-err-" + req.params.artistId });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "delete-artistall-db-false" });
+        }
+    }
+});
+app.delete('/songs/delete/:songId', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.songId || req.params.songId != 'all') {
+        res.status(400).send({ message: "Song id all cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('songs');
+            col.remove({}, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "delete-songall-err-" + req.params.songId });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "delete-songall-db-false" });
         }
     }
 });
