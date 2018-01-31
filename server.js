@@ -342,48 +342,40 @@ app.delete('/songs/delete/:songId', function (req, res) {
         }
     }
 });
-app.delete('/artists/delete/:artistId', function (req, res) {
+app.delete('/artists/deleteall', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!req.params.artistId || !req.params.artistId != 'all') {
-        res.status(400).send({ message: "Artist id all cannot be empty" });
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.deleteMany({}, function (err, result) {
+            if (err) {
+                res.status(500).send({ message: "delete-artistall-err" });
+            } else {
+                res.send(result);
+            }
+        });
     } else {
-        if (!db) {
-            initDb(function (err) { });
-        }
-        if (db) {
-            var col = db.collection('artists');
-            col.remove({}, function (err, result) {
-                if (err) {
-                    res.status(500).send({ message: "delete-artistall-err-" + req.params.artistId });
-                } else {
-                    res.send(result);
-                }
-            });
-        } else {
-            res.status(500).send({ message: "delete-artistall-db-false" });
-        }
+        res.status(500).send({ message: "delete-artistall-db-false" });
     }
 });
-app.delete('/songs/delete/:songId', function (req, res) {
+app.delete('/songs/deleteall', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!req.params.songId || req.params.songId != 'all') {
-        res.status(400).send({ message: "Song id all cannot be empty" });
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('songs');
+        col.deleteMany({}, function (err, result) {
+            if (err) {
+                res.status(500).send({ message: "delete-songall-err-" });
+            } else {
+                res.send(result);
+            }
+        });
     } else {
-        if (!db) {
-            initDb(function (err) { });
-        }
-        if (db) {
-            var col = db.collection('songs');
-            col.remove({}, function (err, result) {
-                if (err) {
-                    res.status(500).send({ message: "delete-songall-err-" + req.params.songId });
-                } else {
-                    res.send(result);
-                }
-            });
-        } else {
-            res.status(500).send({ message: "delete-songall-db-false" });
-        }
+        res.status(500).send({ message: "delete-songall-db-false" });
     }
 });
 
