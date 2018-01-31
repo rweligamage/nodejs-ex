@@ -255,7 +255,7 @@ app.post('/songs/add', function (req, res) {
     }
 });
 
-app.delete('/artists/delete', function (req, res) {
+app.delete('/artists/delete/:artistId', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.artistId) {
         res.status(400).send({ message: "Artist id cannot be empty" });
@@ -277,7 +277,7 @@ app.delete('/artists/delete', function (req, res) {
         }
     }
 });
-app.delete('/songs/delete', function (req, res) {
+app.delete('/songs/delete/:songId', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.songId) {
         res.status(400).send({ message: "Song id cannot be empty" });
