@@ -342,6 +342,38 @@ app.post('/songs/save', function (req, res) {
         }
     }
 });
+
+app.post('/songs/draft', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.body.name_sinhala || !req.body.name_english || !req.body.lyrics) {
+        res.status(400).send({ message: "Song cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var songObj = {
+                name_sinhala: req.body.name_sinhala,
+                name_english: req.body.name_english,
+                lyrics: req.body.lyrics,
+                artists: req.body.artists,
+                verified: false,
+                _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
+            };
+            var col = db.collection('songs');
+            col.save(songObj, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "post-song-draft-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "post-song-draft-db-false" });
+        }
+    }
+});
+
 app.post('/artists/add/list', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body) {
