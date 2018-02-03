@@ -239,7 +239,7 @@ app.get('/songs/notverified/:searchText', function (req, res) {
         }
     }
 });
-app.get('/artists/:searchText', function (req, res) {
+app.get('/artists/search/:searchText', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.searchText) {
         res.status(400).send({ message: "searchText cannot be empty artist" });
@@ -261,7 +261,7 @@ app.get('/artists/:searchText', function (req, res) {
         }
     }
 });
-app.get('/songs/:searchText', function (req, res) {
+app.get('/songs/search/:searchText', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.searchText) {
         res.status(400).send({ message: "searchText cannot be empty songs" });
