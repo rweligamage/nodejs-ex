@@ -195,6 +195,50 @@ app.get('/songs/notverified', function (req, res) {
         res.status(500).send({ message: "get-notverified-songs-db-false" });
     }
 });
+app.get('/artists/notverified/:searchText', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.searchText) {
+        res.status(400).send({ message: "searchText cannot be empty artist" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('artists');
+            col.find({ verified: false, name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+                if (err) {
+                    res.status(500).send({ message: "get-notverified-artist-search-toarray-err" });
+                } else {
+                    res.send(songs);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "get-notverified-artist-search-db-false" });
+        }
+    }
+});
+app.get('/songs/notverified/:searchText', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.params.searchText) {
+        res.status(400).send({ message: "searchText cannot be empty songs" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var col = db.collection('songs');
+            col.find({ verified: false, name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+                if (err) {
+                    res.status(500).send({ message: "get-notverified-songs-search-toarray-err" });
+                } else {
+                    res.send(songs);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "get-notverified-songs-search-db-false" });
+        }
+    }
+});
 app.post('/artists/save', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
