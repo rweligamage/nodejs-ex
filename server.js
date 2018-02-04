@@ -87,6 +87,7 @@ app.get('/closedb', function (req, res) {
     }
     res.json({ "message": dbStatus });
 });
+// ------------------list------------------
 app.get('/artists', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -123,6 +124,7 @@ app.get('/songs', function (req, res) {
         res.status(500).send({ message: "get-songs-db-false" });
     }
 });
+// ------------------verified------------------
 app.get('/artists/verified', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -159,6 +161,7 @@ app.get('/songs/verified', function (req, res) {
         res.status(500).send({ message: "get-verified-songs-db-false" });
     }
 });
+// ------------------not verified------------------
 app.get('/artists/notverified', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
@@ -195,6 +198,7 @@ app.get('/songs/notverified', function (req, res) {
         res.status(500).send({ message: "get-notverified-songs-db-false" });
     }
 });
+// ------------------search inside not verified ------------------
 app.get('/artists/notverified/:searchText', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.searchText) {
@@ -239,6 +243,7 @@ app.get('/songs/notverified/:searchText', function (req, res) {
         }
     }
 });
+// ------------------search------------------
 app.get('/artists/search/:searchText', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.searchText) {
@@ -283,6 +288,7 @@ app.get('/songs/search/:searchText', function (req, res) {
         }
     }
 });
+// ------------------save------------------
 app.post('/artists/save', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.base64 || !req.body.verified) {
@@ -342,7 +348,36 @@ app.post('/songs/save', function (req, res) {
         }
     }
 });
-
+// ------------------draft------------------
+app.post('/artists/draft', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!req.body.name_sinhala || !req.body.name_english) {
+        res.status(400).send({ message: "Artist cannot be empty" });
+    } else {
+        if (!db) {
+            initDb(function (err) { });
+        }
+        if (db) {
+            var artObj = {
+                name_sinhala: req.body.name_sinhala,
+                name_english: req.body.name_english,
+                base64: req.body.base64,
+                verified: false,
+                _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
+            };
+            var col = db.collection('artists');
+            col.save(artObj, function (err, result) {
+                if (err) {
+                    res.status(500).send({ message: "post-artist-draft-err" });
+                } else {
+                    res.send(result);
+                }
+            });
+        } else {
+            res.status(500).send({ message: "post-artist-draft-db-false" });
+        }
+    }
+});
 app.post('/songs/draft', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body.name_sinhala || !req.body.name_english || !req.body.lyrics) {
@@ -373,7 +408,7 @@ app.post('/songs/draft', function (req, res) {
         }
     }
 });
-
+// ------------------add many------------------
 app.post('/artists/add/list', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.body) {
@@ -418,6 +453,7 @@ app.post('/songs/add/list', function (req, res) {
         }
     }
 });
+// ------------------delete by id------------------
 app.delete('/artists/delete/:artistId', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!req.params.artistId) {
@@ -462,6 +498,7 @@ app.delete('/songs/delete/:songId', function (req, res) {
         }
     }
 });
+// ------------------delete all------------------
 app.delete('/artists/deleteall', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (!db) {
