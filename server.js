@@ -254,7 +254,7 @@ app.get('/artists/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('artists');
-            col.find({ name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ name_english: { $regex: decodeURIComponent(req.params.searchText), $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-artist-search-toarray-err" });
                 } else {
@@ -276,7 +276,7 @@ app.get('/songs/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.find({ name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ name_english: { $regex: decodeURIComponent(req.params.searchText), $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-songs-search-toarray-err" });
                 } else {
@@ -464,7 +464,7 @@ app.delete('/artists/delete/:artistId', function (req, res) {
         }
         if (db) {
             var col = db.collection('artists');
-            col.remove({_id: req.params.artistId }, function (err, result) {
+            col.remove({_id: decodeURIComponent(req.params.artistId) }, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "delete-artist-err-" + req.params.artistId });
                 } else {
@@ -486,7 +486,7 @@ app.delete('/songs/delete/:songId', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.remove({_id: req.params.songId }, function (err, result) {
+            col.remove({_id: decodeURIComponent(req.params.songId) }, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "delete-song-err-" + req.params.songId });
                 } else {
