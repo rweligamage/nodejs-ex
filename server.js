@@ -366,7 +366,7 @@ app.post('/artists/draft', function (req, res) {
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
             };
             var col = db.collection('artists');
-            col.save(artObj, function (err, result) {
+            col.insert(artObj, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "post-artist-draft-err" });
                 } else {
@@ -396,7 +396,7 @@ app.post('/songs/draft', function (req, res) {
                 _id: req.body.name_english.toLowerCase().replace(/ /g, '_')
             };
             var col = db.collection('songs');
-            col.save(songObj, function (err, result) {
+            col.insert(songObj, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "post-song-draft-err" });
                 } else {
