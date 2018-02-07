@@ -208,8 +208,8 @@ app.get('/artists/notverified/:searchText', function (req, res) {
             initDb(function (err) { });
         }
         if (db) {
-            var col = db.collection('artists');
-            col.find({ verified: false, name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            var col = db.collection('artists'); //search: { $regex: req.params.searchText, $options: 'i'}
+            col.find({ verified: false, search: { $regex: req.params.searchText } }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-notverified-artist-search-toarray-err" });
                 } else {
@@ -231,7 +231,7 @@ app.get('/songs/notverified/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.find({ verified: false, name_english: { $regex: req.params.searchText, $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ verified: false, search: { $regex: req.params.searchText} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-notverified-songs-search-toarray-err" });
                 } else {
@@ -254,7 +254,7 @@ app.get('/artists/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('artists');
-            col.find({ name_english: { $regex: decodeURIComponent(req.params.searchText), $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ search: { $regex: decodeURIComponent(req.params.searchText)} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-artist-search-toarray-err" });
                 } else {
@@ -276,7 +276,7 @@ app.get('/songs/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.find({ name_english: { $regex: decodeURIComponent(req.params.searchText), $options: 'i'} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ search: { $regex: decodeURIComponent(req.params.searchText)} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-songs-search-toarray-err" });
                 } else {
@@ -458,42 +458,42 @@ app.delete('/songs/delete/:songId', function (req, res) {
     }
 });
 // ------------------delete all------------------
-app.delete('/artists/deleteall', function (req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!db) {
-        initDb(function (err) { });
-    }
-    if (db) {
-        var col = db.collection('artists');
-        col.deleteMany({}, function (err, result) {
-            if (err) {
-                res.status(500).send({ message: "delete-artistall-err" });
-            } else {
-                res.send(result);
-            }
-        });
-    } else {
-        res.status(500).send({ message: "delete-artistall-db-false" });
-    }
-});
-app.delete('/songs/deleteall', function (req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    if (!db) {
-        initDb(function (err) { });
-    }
-    if (db) {
-        var col = db.collection('songs');
-        col.deleteMany({}, function (err, result) {
-            if (err) {
-                res.status(500).send({ message: "delete-songall-err-" });
-            } else {
-                res.send(result);
-            }
-        });
-    } else {
-        res.status(500).send({ message: "delete-songall-db-false" });
-    }
-});
+// app.delete('/artists/deleteall', function (req, res) {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     if (!db) {
+//         initDb(function (err) { });
+//     }
+//     if (db) {
+//         var col = db.collection('artists');
+//         col.deleteMany({}, function (err, result) {
+//             if (err) {
+//                 res.status(500).send({ message: "delete-artistall-err" });
+//             } else {
+//                 res.send(result);
+//             }
+//         });
+//     } else {
+//         res.status(500).send({ message: "delete-artistall-db-false" });
+//     }
+// });
+// app.delete('/songs/deleteall', function (req, res) {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     if (!db) {
+//         initDb(function (err) { });
+//     }
+//     if (db) {
+//         var col = db.collection('songs');
+//         col.deleteMany({}, function (err, result) {
+//             if (err) {
+//                 res.status(500).send({ message: "delete-songall-err-" });
+//             } else {
+//                 res.send(result);
+//             }
+//         });
+//     } else {
+//         res.status(500).send({ message: "delete-songall-db-false" });
+//     }
+// });
 // ------------------add many------------------
 // app.post('/artists/add/list', function (req, res) {
 //     res.setHeader('Access-Control-Allow-Origin', '*');
