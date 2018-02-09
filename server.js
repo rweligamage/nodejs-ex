@@ -3,14 +3,17 @@ var express = require('express'),
     app = express(),
     morgan = require('morgan'),
     cors = require('cors'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    multer = require('multer'),
+    path = require('path');
 
 Object.assign = require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
-app.use(cors({origin: 'http://localhost:8100'}));
+app.use(cors({ origin: 'http://localhost:8100' }));
 app.use(bodyParser.json());
+app.use('/imgs', express.static(path.join(__dirname, 'imgs')));
 
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
@@ -59,6 +62,15 @@ var initDb = function (callback) {
         console.log('Connected to MongoDB at: %s', mongoURL);
     });
 };
+
+var mystorage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, "./imgs");
+    },
+    filename: function (req, file, callback) {
+        callback(null, file.originalname);//path.extname(file.originalname)
+    }
+});
 
 app.get('/', function (req, res) {
     res.send('{ pageCount: -1 }');
@@ -231,7 +243,7 @@ app.get('/songs/notverified/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.find({ verified: false, search: { $regex: req.params.searchText} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ verified: false, search: { $regex: req.params.searchText } }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-notverified-songs-search-toarray-err" });
                 } else {
@@ -254,7 +266,7 @@ app.get('/artists/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('artists');
-            col.find({ search: { $regex: decodeURIComponent(req.params.searchText)} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ search: { $regex: decodeURIComponent(req.params.searchText) } }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-artist-search-toarray-err" });
                 } else {
@@ -276,7 +288,7 @@ app.get('/songs/search/:searchText', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.find({ search: { $regex: decodeURIComponent(req.params.searchText)} }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
+            col.find({ search: { $regex: decodeURIComponent(req.params.searchText) } }).limit(3).sort({ name_english: 1 }).toArray(function (err, songs) {
                 if (err) {
                     res.status(500).send({ message: "get-songs-search-toarray-err" });
                 } else {
@@ -423,7 +435,7 @@ app.delete('/artists/delete/:artistId', function (req, res) {
         }
         if (db) {
             var col = db.collection('artists');
-            col.remove({_id: decodeURIComponent(req.params.artistId) }, function (err, result) {
+            col.remove({ _id: decodeURIComponent(req.params.artistId) }, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "delete-artist-err-" + req.params.artistId });
                 } else {
@@ -445,7 +457,7 @@ app.delete('/songs/delete/:songId', function (req, res) {
         }
         if (db) {
             var col = db.collection('songs');
-            col.remove({_id: decodeURIComponent(req.params.songId) }, function (err, result) {
+            col.remove({ _id: decodeURIComponent(req.params.songId) }, function (err, result) {
                 if (err) {
                     res.status(500).send({ message: "delete-song-err-" + req.params.songId });
                 } else {
@@ -457,6 +469,29 @@ app.delete('/songs/delete/:songId', function (req, res) {
         }
     }
 });
+// ------------------upload img---------------------
+app.post('/artist_upload', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    var uploadImage = multer({
+        storage: mystorage,
+        fileFilter: function(req, file, callback) {
+            var ext = path.extname(file.originalname)
+            if (ext !== '.jpg') {
+                return callback(res.end('Only .jpg .jpeg are allowed'), null);
+            }
+            callback(null, true);
+        }
+    }).single('file');
+
+    uploadImage(req, res, function(err){
+        if (err){
+            res.status(400).send({ message: 'failed:' + req.file.filename });
+        }else{
+            res.status(200).send({ message: 'success:' + req.file.filename });
+        }
+    });
+});
+
 // ------------------delete all------------------
 // app.delete('/artists/deleteall', function (req, res) {
 //     res.setHeader('Access-Control-Allow-Origin', '*');
