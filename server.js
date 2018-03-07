@@ -491,6 +491,45 @@ app.post('/artist_upload', function (req, res) {
         }
     });
 });
+// ------------------test to arr err------------------
+app.get('/artists/count', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.count({ verified: true },function (err, count) {
+            if (err) {
+                res.status(500).send({ message: err });
+            } else {
+                res.send(count);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "test-artists-db-false" });
+    }
+});
+app.get('/artists/test', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!db) {
+        initDb(function (err) { });
+    }
+    if (db) {
+        var col = db.collection('artists');
+        col.find({ verified: true }).toArray(function (err, artists) {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.send(artists);
+            }
+        });
+    } else {
+        res.status(500).send({ message: "get-verified-artists-db-false" });
+    }
+});
+
+
 
 // ------------------delete all------------------
 // app.delete('/artists/deleteall', function (req, res) {
